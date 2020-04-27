@@ -5,15 +5,43 @@ Created on Fri Feb  7 17:51:56 2020
 @author: Lucille
 """
 import nltk
+from tkinter import Tk
+from tkinter.filedialog import askopenfilename
+from xml.dom import minidom
 
-text = "The decision by the independent MP Andrew Wilkie to withdraw his support for the minority Labor government sounded dramatic but it should not further threaten its stability. When, after the 2010 election, Wilkie, Rob Oakeshott, Tony Windsor and the Greens agreed to support Labor, they gave just two guarantees: confidence and supply."
 
+filetypes = [('Document XML','*.xml')] # Type de fichier pour le filechooser
+
+""" Fonction pour ouvrir le fichier XML """
+def filechooser():
+    Tk().withdraw()
+    filename = askopenfilename(filetypes=filetypes)
+    print(filename)
+    return filename
+
+""" Fonction pour récupérer le contenu de la balise <text> du XML """
+def readXML(filename) :
+    file = minidom.parse(filename)
+    text = file.getElementsByTagName('text')[0].childNodes[0].nodeValue
+    return text
+
+""" Fonction pour POS tagger du texte """
 def preprocess(input):
     text = nltk.word_tokenize(input)
     return nltk.pos_tag(text)
 
+
+
+""" Appel des fonctions """
+file = filechooser()
+text = readXML(file)
+print(text)
+
 tokens = preprocess(text)
 
+
+
+"""
 arbre = nltk.ne_chunk(tokens, binary=True)
 
 subtrees = arbre.subtrees()
@@ -25,3 +53,5 @@ for sub in subtrees:
         
 for entity in entities:
     print(entity)
+
+"""
