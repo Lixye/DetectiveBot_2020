@@ -8,8 +8,10 @@ import nltk
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 from xml.dom import minidom
+import re
 
-
+""" Variables """
+regPattern = "<ref.*>.*\n*.*</ref.*>"
 filetypes = [('Document XML','*.xml')] # Type de fichier pour le filechooser
 
 """ Fonction pour ouvrir le fichier XML """
@@ -25,19 +27,25 @@ def readXML(filename) :
     text = file.getElementsByTagName('text')[0].childNodes[0].nodeValue
     return text
 
+""" Fonction qui nettoie le texte"""
+def clearText(text):
+    clean_text = re.sub(regPattern, '', text)
+    return clean_text
+    
+
 """ Fonction pour POS tagger du texte """
 def preprocess(input):
     text = nltk.word_tokenize(input)
     return nltk.pos_tag(text)
 
 
-
 """ Appel des fonctions """
 file = filechooser()
 text = readXML(file)
-print(text)
+cleanText = clearText(text);
+print(cleanText)
 
-tokens = preprocess(text)
+tokens = preprocess(cleanText)
 
 
 
