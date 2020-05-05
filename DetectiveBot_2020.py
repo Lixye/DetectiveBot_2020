@@ -11,7 +11,9 @@ from xml.dom import minidom
 import re
 
 """ Variables """
-regPattern = "<ref.*>.*\n*.*</ref.*>"
+reg_ref = "<ref.*>.*\n*.*</ref.*>"
+reg_infobox = "{{Infobox (serial killer|criminal)\n*(\|.*\n*)*}}"
+
 filetypes = [('Document XML','*.xml')] # Type de fichier pour le filechooser
 
 """ Fonction pour ouvrir le fichier XML """
@@ -27,11 +29,14 @@ def readXML(filename) :
     text = file.getElementsByTagName('text')[0].childNodes[0].nodeValue
     return text
 
-""" Fonction qui nettoie le texte"""
-def clearText(text):
-    clean_text = re.sub(regPattern, '', text)
-    return clean_text
-    
+""" Fonction qui nettoie le texte des balises <ref></ref>"""
+def clearText(input):
+    return re.sub(reg_ref, '', input)
+
+def getInfobox(input):
+    infobox = re.search(reg_infobox, input)
+    if infobox:
+        return infobox.group(1)
 
 """ Fonction pour POS tagger du texte """
 def preprocess(input):
@@ -42,24 +47,21 @@ def preprocess(input):
 """ Appel des fonctions """
 file = filechooser()
 text = readXML(file)
-cleanText = clearText(text);
-print(cleanText)
+cleanText = clearText(text)
+
+print(getInfobox(text))
 
 tokens = preprocess(cleanText)
 
-
-
-"""
 arbre = nltk.ne_chunk(tokens, binary=True)
-
 subtrees = arbre.subtrees()
 
 entities = []
 for sub in subtrees:
-    if sub.label() == 'NE':
-        entities.append(sub)
+    """if (sub.label() == 'NE'):"""
+    entities.append(sub)
         
-for entity in entities:
-    print(entity)
+"""for entity in entities:
+    print(entity)"""
+    
 
-"""
