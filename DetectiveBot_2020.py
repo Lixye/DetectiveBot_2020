@@ -12,7 +12,6 @@ import re
 
 """ Variables """
 reg_ref = "<ref.*>.*\n*.*</ref.*>"
-reg_infobox = "{{Infobox (serial killer|criminal)\n*(\|.*\n*)*}}"
 
 filetypes = [('Document XML','*.xml')] # Type de fichier pour le filechooser
 
@@ -34,11 +33,6 @@ def clearText(input):
     input = input.replace("[", "").replace("]", "").replace("*", "").replace("| name =", "|name=")
     return re.sub(reg_ref, '', input)
 
-def getInfobox(input):
-    infobox = re.search(reg_infobox, input)
-    if infobox:
-        return infobox.group(1)
-
 """Fonction pour trouver tous les tueurs avec la lettre M"""
 def getKiller(input):
     find = False
@@ -55,8 +49,24 @@ def getKiller(input):
         if find == True and (i[1] == "NNP" or i[1] == "NNS"):
             killer = killer + " " + i[0]            
         
-    print(killer)
+    return killer
+     
+"""Fonction qui trouve les victimes d'un tueur"""
+def getVictims(input):
+    find = False
+    victims = ""
+    for i in input:
+        if (i[0] == "|"):
+            find = False
+        elif (i[0] == "|victims="):
+            find = True
+            if (len(victims) != 0):
+                victims = victims + "\n"
+        
+        if find == True and (i[1] == "NUM" or i[1] == "NNS"):
+            victims = victims + " " + i[0]
             
+    return victims
 
 """ Fonction pour POS tagger du texte """
 def preprocess(input):
@@ -68,8 +78,9 @@ def preprocess(input):
 file = filechooser()
 text = readXML(file)
 cleanText = clearText(text)
-posTag = preprocess(cleanText)
-killer = getKiller(posTag)
-
+tagged_cleanText = preprocess(cleanText)
+killer = getKiller(tagged_cleanText)
+victims = getVictims(tagged_cleanText)
+print(killer + " " + victims)
     
 
