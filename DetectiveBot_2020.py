@@ -30,43 +30,71 @@ def readXML(filename) :
 
 """ Fonction qui nettoie le texte des balises <ref></ref>"""
 def clearText(input):
-    input = input.replace("[", "").replace("]", "").replace("*", "").replace("| name =", "|name=")
+    input = input.replace("| name =", "|name=").replace("| country =", "|country=").replace("| victims =", "|victims=").replace("| beginyear =", "|beginyear=")
     return re.sub(reg_ref, '', input)
 
-"""Fonction pour trouver tous les tueurs avec la lettre M"""
+"""Fonction pour trouver tous les tueurs"""
 def getKiller(input):
     find = False
     killer = ""
+    killerList = []
     
     for i in input:
         if (i[0] == "|"):
             find = False
+            if (len(killer) != 0):
+                killerList.append(killer)
+                killer = ""
         elif (i[0] == "|name="):
             find = True
-            if (len(killer) != 0):
-                killer = killer + "\n"
         
         if find == True and (i[1] == "NNP" or i[1] == "NNS"):
-            killer = killer + " " + i[0]            
+            killer = killer + " " + i[0]   
+            print(killer)
         
-    return killer
-     
-"""Fonction qui trouve les victimes d'un tueur"""
-def getVictims(input):
+    return killerList
+
+"""Fonction pour trouver tous les tueurs"""
+def getNbVictims(input):
     find = False
-    victims = ""
+    nbVictims = ""
+    victimsList = []
+    victimsList.append("non répertorié")
+    
     for i in input:
         if (i[0] == "|"):
             find = False
         elif (i[0] == "|victims="):
             find = True
-            if (len(victims) != 0):
-                victims = victims + "\n"
+            if (len(nbVictims) != 0):
+                victimsList.append(nbVictims)
+                nbVictims = ""
         
-        if find == True and (i[1] == "NUM" or i[1] == "NNS"):
-            victims = victims + " " + i[0]
-            
-    return victims
+        if find == True and (i[1] == "NNP" or i[1] == "NNS"):
+            nbVictims = nbVictims + i[0]            
+        
+    return victimsList
+     
+"""Fonction pour trouver tous les tueurs"""
+def getDate(input):
+    find = False
+    date = ""
+    dateList = []
+    dateList.append("non répertorié")
+    
+    for i in input:
+        if (i[0] == "|"):
+            find = False
+        elif (i[0] == "|beginyear="):
+            find = True
+            if (len(date) != 0):
+                dateList.append(date)
+                date = ""
+        
+        if find == True and (i[1] == "NNP" or i[1] == "NNS"):
+            date = date + i[0]            
+        
+    return dateList
 
 """ Fonction pour POS tagger du texte """
 def preprocess(input):
@@ -79,8 +107,10 @@ file = filechooser()
 text = readXML(file)
 cleanText = clearText(text)
 tagged_cleanText = preprocess(cleanText)
+print(cleanText)
 killer = getKiller(tagged_cleanText)
-victims = getVictims(tagged_cleanText)
-print(killer + " " + victims)
+date = getDate(tagged_cleanText)
+victims = getNbVictims(tagged_cleanText)
+print(killer, date, victims)
     
 
